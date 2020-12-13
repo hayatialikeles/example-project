@@ -24,7 +24,7 @@ let userData={
 
 
 describe('user router',()=>{
-    it("register testing",(done)=>{
+    it("register testing",function(done){
         chai.request(server).post('/users/register').send(
             {
                 fullname:userData.fullname,
@@ -39,22 +39,19 @@ describe('user router',()=>{
             done();
         });
     });
-    it("auth testing",(done)=>{
+    it("auth testing",function(done){
             chai.request(server).post('/users/login').send(
                 {
                     username:userData.username,
                     password: userData.password,
                 }
             ).end((err,res)=>{
-                    if(res.body.state)
-                    {
-                        userData.token=res.body.token;
-                    }
+                    userData.token=res.body.token;
                     chai.expect(res.status).to.equal(200);
                     done();
                 });
     });
-    it("delete testing",(done)=>{
+    it("delete testing",function(done){
             chai.request(server).post('/users/delete')
             .send({uid:userData.uid})
             .set("Authorization",userData.token)
