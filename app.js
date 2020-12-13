@@ -13,14 +13,18 @@ var bodyParser = require('body-parser');
 
 var mongoose =require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/users', {useNewUrlParser: true});
+const  mongoAtlasUri ="mongodb+srv://hayati:t0BVw6yImkWyDk6J@realmcluster.5evrz.mongodb.net/userList?retryWrites=true&w=majority";
+try {
+  // Connect to the MongoDB cluster
+   mongoose.connect(
+    mongoAtlasUri,
+    { useNewUrlParser: true, useUnifiedTopology: true },
+    (err) => console.log(" Mongoose is connected",err)
+  );
 
-const db=mongoose.connection;
-
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-  console.log("connected is successful !")
-});
+} catch (e) {
+  console.log("could not connect");
+}
 
 var app = express();
 
