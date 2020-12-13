@@ -1,26 +1,66 @@
-var expect    = require("chai").expect;
-var request=require('request');
+var chai= require("chai");
+var ChaiHttp=require('chai-http');
+const server=require('../app')
 
-describe("Users get Controller",()=>{
-    it("user get list status control",(done)=>{
-        request("http://localhost:3000/users/1/12",(err,response,body)=>{
-            expect(response.statusCode).to.equal(200);
+chai.use(ChaiHttp);
+function makeid(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+let userData={
+    uid:'',
+    username:makeid(8),
+    password:makeid(10),
+    email:makeid(10)+'@gmail.com',
+    age:20,
+    fullname:'ahmet demir',
+    token:''
+};
+
+
+describe('user router',()=>{
+    it("register testing",(done)=>{
+        chai.request(server).post('/users/register').send(
+            {
+                fullname:userData.fullname,
+                username:userData.username,
+                password: userData.password,
+                email: userData.email,
+                age: userData.age,
+            }
+        ).end((err,res)=>{
+            chai.expect(res.status).to.equal(200);
+            userData.uid=res.body.data._id;
             done();
         });
     });
-
-    it("user get list data control",(done)=>{
-        request("http://localhost:3000/users/1/12",(err,response,body)=>{
-            expect(JSON.parse(body).state).to.equal(true);
-            done();
-        });
+    it("auth testing",(done)=>{
+            chai.request(server).post('/users/login').send(
+                {
+                    username:userData.username,
+                    password: userData.password,
+                }
+            ).end((err,res)=>{
+                    if(res.body.state)
+                    {
+                        userData.token=res.body.token;
+                    }
+                    chai.expect(res.status).to.equal(200);
+                    done();
+                });
     });
-
-    it("user get list params control",(done)=>{
-        request("http://localhost:3000/users/1",(err,response,body)=>{
-            expect(response.statusCode).to.equal(404);
-            done();
-        });
+    it("delete testing",(done)=>{
+            chai.request(server).post('/users/delete')
+            .send({uid:userData.uid})
+            .set("Authorization",userData.token)
+            .end((err,res)=>{
+                chai.expect(res.statusCode).to.equal(200);
+                done();
+            });
     });
-
 });
